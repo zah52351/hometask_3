@@ -9,7 +9,4 @@ int main () {
     ForwardList<std::string> lst3(7, "ss");
     ForwardList<int> lst4 {1,23,15};
     ForwardList<int> lst5(lst4.begin(), lst4.end());
-    for (auto &c : lst3) {
-        std::cout << c;
-    }
 }
