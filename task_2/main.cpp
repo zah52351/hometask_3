@@ -1,17 +1,15 @@
+#include <iostream>
 #include "task_2.hpp"
 #include <vector>
 
-int main() {
-    ForwardList<int> lst(5, 12);
-    ForwardList<double> lst2{1,3,6};
-    std::vector<int> v{1,2,3};
-    //ForwardList<int> lst3(v.begin(), v.end());
-    //ForwardList<int> lst4(lst.begin(), lst.end());
-    for(auto& c : lst) {
-        std::cout << c << '\n';
-    }
-    
-    
-    
+int main () {
 
+    ForwardList<int> lst;
+    ForwardList<double> lst2(5);
+    ForwardList<std::string> lst3(7, "ss");
+    ForwardList<int> lst4 {1,23,15};
+    ForwardList<int> lst5(lst4.begin(), lst4.end());
+    for (auto &c : lst3) {
+        std::cout << c;
+    }
 }

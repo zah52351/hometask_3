@@ -1,8 +1,7 @@
-
+#include <cstddef>
 #include <initializer_list>
 #include <iterator>
 #include <memory>
-#include <iostream>
 
 
 
@@ -19,20 +18,21 @@ class ForwardList {
         Node(const T& data) : next_{}, data_{data} {}
     };
 
-    struct FwdIter {
+    struct FwdIter : public std::iterator<std::forward_iterator_tag, T> {
         Node* ptr_;
     public:
         FwdIter(Node* ptr) : ptr_(ptr) {}
         
         Node* NodeData() const { return static_cast<Node*>(ptr_); }
 
-        T& operator*() const { return NodeData()->data_; }
+        typename FwdIter::reference operator*() const { return NodeData()->data_; }
 
-        T* operator->() const { return &NodeData()->data_; }
+        typename FwdIter::pointer operator->() const { return &NodeData()->data_; }
 
-        bool operator==(const FwdIter& rhs) const { return this->ptr_ == rhs.ptr_; }
+        bool operator==(const FwdIter& rhs) const { return this->ptr_->data_ == rhs.ptr_->data_; }
 
-        bool operator!=(const FwdIter& rhs) const { return this->ptr_ != rhs.ptr_; }
+        bool operator!=(const FwdIter& rhs) const { return this->ptr_->data_ != rhs.ptr_->data_; }
+        
         
         FwdIter& operator++() {
             ptr_ = ptr_->next_.get();
@@ -45,18 +45,21 @@ class ForwardList {
             return tmp.ptr_;
         }
     };
+
     std::unique_ptr<Node> head_;
+    size_t size_ = 0;
 
 public:
     
-    explicit ForwardList() : head_(std::make_unique<Node>(nullptr)) {}
+    explicit ForwardList() : head_(std::make_unique<Node>()) {}
 
     explicit ForwardList(size_t count) : ForwardList(count, T{}) {}
 
     explicit ForwardList(size_t count, const T& elem) : ForwardList() {
         Node* pNode = head_.get();
+        size_ = count;
         while(count != 0) {
-            pNode->next_ = std::make_unique<Node>(nullptr, elem);
+            pNode->next_ = std::make_unique<Node>(elem);
             pNode = pNode->next_.get();
             --count;
         }
@@ -65,8 +68,9 @@ public:
     template <typename Iter> ForwardList(Iter begin, Iter end) : ForwardList() {
             Node* pNode = head_.get();
             for (auto it = begin; it != end; ++it) {
-                pNode->next_ = std::make_unique<Node>(nullptr, it);
+                pNode->next_ = std::make_unique<Node>(*it);
                 pNode = pNode->next_.get();
+                ++size_;
             }
         }
 
@@ -97,7 +101,7 @@ public:
 
     FwdIter begin() { return FwdIter(head_->next_.get()); }
 
-    FwdIter end() { return nullptr; }
+    FwdIter end() { return FwdIter(head_->next_.get() + size_); }
     
     FwdIter insert_after(FwdIter pos, T value) {
         Node* tmp = pos.ptr_;
@@ -115,26 +119,9 @@ public:
         return tmp->next_.get();
     }
 
-    /*FwdIter find(T data) {
-        Node* tmp = head_;
-        while(tmp) {
-            if(tmp->data_ == data) return ;
-            tmp = tmp->next_;
-        }
-
-    }*/
-    
-    bool is_empty() { return head_ == nullptr; }
-
-   /* void print() {
-        if(is_empty()) return;
-        auto tmp = head_;
-        while (tmp) {
-            std::cout << tmp->data_ << '\n';
-            tmp = tmp->next_;
-        }
-        std::cout << '\n';
-    }*/
+    FwdIter find(T data) {
+       return std::find(*this->begin(), *this->end(), data);
+    }
 };
 
 
